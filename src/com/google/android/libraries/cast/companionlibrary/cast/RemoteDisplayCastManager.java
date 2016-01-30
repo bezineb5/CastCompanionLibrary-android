@@ -70,7 +70,7 @@ public class RemoteDisplayCastManager extends BaseCastManager {
      */
     public static RemoteDisplayCastManager getInstance() {
         if (sInstance == null) {
-            String msg = "No DataCastManager instance was found, did you forget to initialize it?";
+            String msg = "No RemoteDisplayCastManager instance was found, did you forget to initialize it?";
             LOGE(TAG, msg);
             throw new IllegalStateException(msg);
         }
@@ -86,7 +86,6 @@ public class RemoteDisplayCastManager extends BaseCastManager {
             builder.setVerboseLoggingEnabled(true);
         }
         return builder;
-
     }
 
     @Override
