@@ -337,7 +337,7 @@ public abstract class BaseCastManager
         return mSelectedCastDevice.isOnLocalNetwork();
     }
 
-    private void setDevice(CastDevice device) {
+    protected void setDevice(CastDevice device) {
         mSelectedCastDevice = device;
         mDeviceName = mSelectedCastDevice.getFriendlyName();
 
@@ -974,7 +974,7 @@ public abstract class BaseCastManager
      * Launches application. For this to succeed, a connection should be already established by the
      * CastClient.
      */
-    private void launchApp() throws TransientNetworkDisconnectionException, NoConnectionException {
+    protected void launchApp() throws TransientNetworkDisconnectionException, NoConnectionException {
         LOGD(TAG, "launchApp() is called");
         if (!isConnected()) {
             if (mReconnectionStatus == RECONNECTION_STATUS_IN_PROGRESS) {
