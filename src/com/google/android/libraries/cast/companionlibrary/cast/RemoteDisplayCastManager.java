@@ -90,11 +90,6 @@ public class RemoteDisplayCastManager extends BaseCastManager {
     }
 
     @Override
-    protected MediaRouteDialogFactory getMediaRouteDialogFactory() {
-        return null;
-    }
-
-    @Override
     protected void onApplicationConnected(ApplicationMetadata applicationMetadata, String applicationStatus, String sessionId, boolean wasLaunched) {
 
     }
