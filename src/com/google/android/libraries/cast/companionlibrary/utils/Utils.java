@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
@@ -58,7 +59,6 @@ import java.util.List;
 /**
  * A collection of utility methods, all static.
  */
-@SuppressWarnings("unused")
 public final class Utils {
 
     private static final String TAG = LogUtils.makeLogTag(Utils.class);
@@ -73,6 +73,7 @@ public final class Utils {
     private static final String KEY_TRACK_CONTENT_ID = "track-custom-id";
     private static final String KEY_TRACK_NAME = "track-name";
     private static final String KEY_TRACK_TYPE = "track-type";
+    private static final String KEY_TRACK_CONTENT_TYPE = "track-content-type";
     private static final String KEY_TRACK_SUBTYPE = "track-subtype";
     private static final String KEY_TRACK_LANGUAGE = "track-language";
     private static final String KEY_TRACK_CUSTOM_DATA = "track-custom-data";
@@ -87,19 +88,7 @@ public final class Utils {
      * Formats time from milliseconds to hh:mm:ss string format.
      */
     public static String formatMillis(int millis) {
-        int seconds = millis / 1000;
-        int hours = seconds / (60 * 60);
-        seconds %= (60 * 60);
-        int minutes = seconds / 60;
-        seconds %= 60;
-
-        String time;
-        if (hours > 0) {
-            time = String.format("%d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            time = String.format("%d:%02d", minutes, seconds);
-        }
-        return time;
+        return DateUtils.formatElapsedTime(millis/1000);
     }
 
     /**
@@ -220,6 +209,7 @@ public final class Utils {
                     jsonObject.put(KEY_TRACK_ID, mt.getId());
                     jsonObject.put(KEY_TRACK_LANGUAGE, mt.getLanguage());
                     jsonObject.put(KEY_TRACK_TYPE, mt.getType());
+                    jsonObject.put(KEY_TRACK_CONTENT_TYPE, mt.getContentType());
                     if (mt.getSubtype() != MediaTrack.SUBTYPE_UNKNOWN) {
                         jsonObject.put(KEY_TRACK_SUBTYPE, mt.getSubtype());
                     }
@@ -309,6 +299,9 @@ public final class Utils {
                         }
                         if (jsonObj.has(KEY_TRACK_CONTENT_ID)) {
                             builder.setContentId(jsonObj.getString(KEY_TRACK_CONTENT_ID));
+                        }
+                        if (jsonObj.has(KEY_TRACK_CONTENT_TYPE)) {
+                            builder.setContentType(jsonObj.getString(KEY_TRACK_CONTENT_TYPE));
                         }
                         if (jsonObj.has(KEY_TRACK_LANGUAGE)) {
                             builder.setLanguage(jsonObj.getString(KEY_TRACK_LANGUAGE));
@@ -483,18 +476,44 @@ public final class Utils {
      */
     public static String assertNotEmpty(String string, String name) {
         if (TextUtils.isEmpty(string)) {
-            throw new IllegalArgumentException(name + " cannot be null");
+            throw new IllegalArgumentException(name + " cannot be null or empty");
         }
         return string;
     }
 
+    // Display.getHeight() and getWidth() are deprecated but Display.getSize(), which is now the
+    // recommended replacement was introduced in API level 13+.
     @SuppressWarnings("deprecation")
     /**
-     * Returns the screen/display size
+     * Returns the screen/display size.
      */
     public static Point getDisplaySize(Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
-        return new Point(display.getWidth(), display.getHeight());
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR2) {
+            return new Point(display.getWidth(), display.getHeight());
+        } else {
+            Point outSize = new Point();
+            display.getSize(outSize);
+            return outSize;
+        }
     }
+
+    /**
+     * Returns {@code true} if and only if the {@code tracks} include at least one audio or text
+     * track.
+     */
+    public static boolean hasAudioOrTextTrack(List<MediaTrack> tracks) {
+        if (tracks == null || tracks.isEmpty()) {
+            return false;
+        }
+        for (MediaTrack track : tracks) {
+            if (track.getType() == MediaTrack.TYPE_AUDIO
+                    || track.getType() == MediaTrack.TYPE_TEXT) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -76,7 +76,6 @@ import android.widget.TextView;
  * {@link com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer#onCastAvailabilityChanged(boolean)}.
  * Management of how often this overlay should be shown is left to the client application.
  */
-@SuppressWarnings("unused")
 public class IntroductoryOverlay extends RelativeLayout {
 
     private static final long FADE_OUT_LENGTH_MS = 400;
@@ -85,7 +84,6 @@ public class IntroductoryOverlay extends RelativeLayout {
     private TextView mTitleText;
     private TextView mSubtitleText;
     private Button mButton;
-    private Context mContext;
     private float mFocusRadius;
     private int mOverlayColorId;
     private int mCenterY;
@@ -104,14 +102,13 @@ public class IntroductoryOverlay extends RelativeLayout {
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public IntroductoryOverlay(Builder builder, AttributeSet attrs, int defStyleAttr) {
         super(builder.mContext, attrs, defStyleAttr);
-        mContext = builder.mContext;
         mIsSingleTime = builder.mSingleTime;
-        LayoutInflater inflater = LayoutInflater.from(mContext);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         inflater.inflate(R.layout.ccl_intro_overlay, this);
         mButton = (Button) findViewById(R.id.button);
         mTitleText = (TextView) findViewById(R.id.textTitle);
         mSubtitleText = (TextView) findViewById(R.id.textSubtitle);
-        TypedArray typedArray = mContext.getTheme()
+        TypedArray typedArray = getContext().getTheme()
                 .obtainStyledAttributes(attrs, R.styleable.CCLIntroOverlay,
                         R.attr.CCLIntroOverlayStyle, R.style.CCLIntroOverlay);
         if (builder.mOverlayColor != 0) {
@@ -128,10 +125,10 @@ public class IntroductoryOverlay extends RelativeLayout {
                     .getDimension(R.styleable.CCLIntroOverlay_ccl_IntroFocusRadius, 0);
         }
         View view = builder.mView;
-        Rect r = new Rect();
-        view.getGlobalVisibleRect(r);
-        mCenterX = r.centerX();
-        mCenterY = r.centerY();
+        Rect rect = new Rect();
+        view.getGlobalVisibleRect(rect);
+        mCenterX = rect.centerX();
+        mCenterY = rect.centerY();
         setFitsSystemWindows(true);
         setupHolePaint();
         setText(builder.mTitleText, builder.mSubtitleText);
@@ -144,15 +141,14 @@ public class IntroductoryOverlay extends RelativeLayout {
      * Shows the overlay if it is not visible already.
      */
     public void show() {
-        if (mIsSingleTime && isFtuShown(mContext)) {
+        if (mIsSingleTime && isFtuShown()) {
             // we are exceeding the max number
-            mContext = null;
             mListener = null;
             return;
         }
         if (!mIsOverlayVisible) {
             mIsOverlayVisible = true;
-            ((ViewGroup) ((Activity) mContext).getWindow().getDecorView()).addView(this);
+            ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(this);
         }
     }
 
@@ -163,12 +159,13 @@ public class IntroductoryOverlay extends RelativeLayout {
      * for all practical purposes, this component cannot be re-used.
      */
     public void remove() {
-        ((ViewGroup) ((Activity) mContext).getWindow().getDecorView()).removeView(this);
+        if (getContext() != null) {
+            ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
+        }
         if (mBitmap != null && !mBitmap.isRecycled()) {
             mBitmap.recycle();
         }
         mBitmap = null;
-        mContext = null;
         mListener = null;
     }
 
@@ -185,7 +182,7 @@ public class IntroductoryOverlay extends RelativeLayout {
         mButton.getBackground().setColorFilter(buttonColor, PorterDuff.Mode.MULTIPLY);
         mButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 fadeOut(FADE_OUT_LENGTH_MS);
             }
         });
@@ -226,15 +223,6 @@ public class IntroductoryOverlay extends RelativeLayout {
         return true;
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        // we make sure we do a clean up
-        if (mContext != null) {
-            mContext = null;
-        }
-        super.onDetachedFromWindow();
-    }
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void fadeOut(long duration) {
         ObjectAnimator oa = ObjectAnimator.ofFloat(this, ALPHA_PROPERTY, INVISIBLE_VALUE);
@@ -242,7 +230,7 @@ public class IntroductoryOverlay extends RelativeLayout {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                setFtuShown(mContext);
+                setFtuShown();
                 if(mListener != null) {
                     mListener.onOverlayDismissed();
                     mListener = null;
@@ -254,13 +242,13 @@ public class IntroductoryOverlay extends RelativeLayout {
         oa.start();
     }
 
-    private void setFtuShown(Context ctx) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
+    private void setFtuShown() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         sharedPref.edit().putBoolean(FTU_SHOWN_KEY, true).apply();
     }
 
-    private boolean isFtuShown(Context ctx) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
+    private boolean isFtuShown() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         return sharedPref.getBoolean(FTU_SHOWN_KEY, false);
     }
 
@@ -268,8 +256,6 @@ public class IntroductoryOverlay extends RelativeLayout {
      * The builder class that is used to instantiate an instance of {@link IntroductoryOverlay}
      */
     public static class Builder {
-
-        private MenuItem mMenuItem;
         private Context mContext;
 
         @ColorRes

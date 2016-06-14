@@ -4,11 +4,22 @@ CastCompanionLibrary-android is a library project to enable developers integrate
 
 ## Dependencies
 * google-play-services_lib library from the Android SDK (at least version 8.3+)
-* android-support-v7-appcompat (version 23.1.1 or above)
-* android-support-v7-mediarouter (version 23.1.1 or above)
+* android-support-v7-appcompat (version 23.4.0 or above)
+* android-support-v7-mediarouter (version 23.4.0 or above)
 
-## Setup Instructions
-Set up the project dependencies. To use this library in your project, follow these steps:
+## Set up Instructions
+Set up the project dependencies. To use this library in your project, you have two options:
+
+(1) Add this library from jCenter repo by adding the following line to your project's
+dependencies:
+```shell
+ dependencies {
+    ...
+    compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.4'
+ }
+```
+
+(2) Use the GitHub source and include that as a module dependency by following these steps:
  * Clone this library into a project named CastCompanionLibrary, parallel to your own application project:
 ```shell
 git clone https://github.com/googlecast/CastCompanionLibrary-android.git CastCompanionLibrary
@@ -30,9 +41,9 @@ Now your project is ready to use this library
 ## Documentation and Demo
 See the "CastCompanionLibrary.pdf" inside the project for a more extensive documentation. The
 [CastVideos-android](https://github.com/googlecast/CastVideos-android) reference sample app uses this library and
-can also be used to understand how this library can be used in a real application.
+demonstrates how this library can be used in a real application.
 
-## References and How to report bugs
+## References and how to report bugs
 * [Cast Developer Documentation](http://developers.google.com/cast/)
 * [Design Checklist](http://developers.google.com/cast/docs/design_checklist)
 * If you find any issues with this library, please open a bug here on GitHub
@@ -44,10 +55,47 @@ Please read and follow the steps in the CONTRIBUTING.md
 ## License
 See LICENSE
 
+## Terms
+Your use of this sample is subject to, and by using or downloading the sample files you agree to comply with, the [Google APIs Terms of Service](https://developers.google.com/terms/) and the [Google Cast SDK Additional Developer Terms of Service](https://developers.google.com/cast/docs/terms/).
+
 ## Google+
 Google Cast Developers Community on Google+ [http://goo.gl/TPLDxj](http://goo.gl/TPLDxj)
 
 ## Change List
+
+2.8.4 (bug fix release)
+
+ * Addressed the following issues: #287, #294, #298, #301, #309
+ * Enabling debug through CastConfiguration now enables logging through LogUtils as well.
+
+2.8.3 (available here and also from jCenter)
+
+ * Updated support libraries to version 23.2.1, this addresses the crash issue on KitKat when IntroductoryOverlay is used (see issue #278)
+ * Fixing an issue where InputStreams were not properly closed in FetchBitmapTask (credit goes to David Edwards)
+ * Fixing an issue where failure to load a media in a queue was not closing the full screen VideoCastControllerActivity (credit goes to Luzian Wild)
+ * Correcting some typos
+
+2.8.2 (available here and also from jCenter)
+
+ * BACKWARD INCOMPATIBLE CHANGE: Removed Simple Widgets that were introduced in 2.8.0
+ * Updated support libraries to version 23.2.0
+
+2.8.1 (available here and also from jCenter)
+
+ * Fixed issue #274
+
+2.8.0 (available here and also from jCenter)
+
+ * CCL is now available from jCenter
+ * Introduced a collection of Simple Widgets: a number of cast-aware widgets that can be used with
+ no additional setup, managed by CCL.
+ * Changed the callback BaseCastConsumer.onDeviceSelected(CastDevice) to
+ BaseCastConsumer.onDeviceSelected(CastDevice, RouteInfo) to provide more information in the callback.
+ * Added a new callback BaseCastConsumer.onRouteRemoved(RouteInfo) to be called when a route is removed.
+ * Fixed #272 and a number of other minor issues.
+ * In their manifests, clients no longer need to add any "intent-filters" to the services and the receiver that CCL provides,
+ this enhances the security of the client applications.
+ * Updated the documentation.
 
 2.7.4
 

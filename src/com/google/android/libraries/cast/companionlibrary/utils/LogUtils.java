@@ -24,14 +24,13 @@ import android.util.Log;
  * Provides a simple wrapper to control logging in development vs production environment. This
  * library should only use the wrapper methods that this class provides.
  */
-@SuppressWarnings("unused")
 public class LogUtils {
 
     private static final String LOG_PREFIX = "ccl_";
     private static final int LOG_PREFIX_LENGTH = LOG_PREFIX.length();
     private static final int MAX_LOG_TAG_LENGTH = 23;
 
-    private static final boolean DEBUG = false;
+    private static boolean sDebug = false;
 
     private LogUtils() {
     }
@@ -52,25 +51,25 @@ public class LogUtils {
     }
 
     public static void LOGD(final String tag, String message) {
-        if (DEBUG || Log.isLoggable(tag, Log.DEBUG)) {
+        if (sDebug || Log.isLoggable(tag, Log.DEBUG)) {
             Log.d(tag, getVersionPrefix() + message);
         }
     }
 
     public static void LOGD(final String tag, String message, Throwable cause) {
-        if (DEBUG || Log.isLoggable(tag, Log.DEBUG)) {
+        if (sDebug || Log.isLoggable(tag, Log.DEBUG)) {
             Log.d(tag, getVersionPrefix() + message, cause);
         }
     }
 
     public static void LOGV(final String tag, String message) {
-        if (DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
+        if (sDebug && Log.isLoggable(tag, Log.VERBOSE)) {
             Log.v(tag, getVersionPrefix() + message);
         }
     }
 
     public static void LOGV(final String tag, String message, Throwable cause) {
-        if (DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
+        if (sDebug && Log.isLoggable(tag, Log.VERBOSE)) {
             Log.v(tag, getVersionPrefix() + message, cause);
         }
     }
@@ -103,4 +102,7 @@ public class LogUtils {
         return "[v" + BaseCastManager.getCclVersion() + "] ";
     }
 
+    public static void setDebug(boolean debug) {
+        sDebug = debug;
+    }
 }
