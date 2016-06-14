@@ -26,7 +26,7 @@ public class RemoteDisplayCastConsumerImpl implements RemoteDisplayCastConsumer 
     }
 
     @Override
-    public void onDisconnectionReason(@BaseCastManager.DISCONNECT_REASON int reason) {
+    public void onDisconnectionReason(@BaseCastManager.DisconnectReason int reason) {
 
     }
 
@@ -61,7 +61,12 @@ public class RemoteDisplayCastConsumerImpl implements RemoteDisplayCastConsumer 
     }
 
     @Override
-    public void onDeviceSelected(CastDevice device) {
+    public void onRouteRemoved(MediaRouter.RouteInfo info) {
+
+    }
+
+    @Override
+    public void onDeviceSelected(CastDevice device, MediaRouter.RouteInfo routeInfo) {
 
     }
 

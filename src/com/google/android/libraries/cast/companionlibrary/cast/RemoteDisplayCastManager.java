@@ -11,6 +11,7 @@ import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
+import com.google.android.gms.cast.LaunchOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.Status;
@@ -154,7 +155,7 @@ public class RemoteDisplayCastManager extends BaseCastManager {
     }
 
     @Override
-    protected void launchApp() throws TransientNetworkDisconnectionException, NoConnectionException {
+    public void launchApp(String applicationId, LaunchOptions launchOptions) throws TransientNetworkDisconnectionException, NoConnectionException {
         // Don't do anything
     }
 
