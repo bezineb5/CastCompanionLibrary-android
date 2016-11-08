@@ -366,7 +366,9 @@ public final class Utils {
 
         RectF targetRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
 
-        Bitmap destination = Bitmap.createBitmap(newWidth, newHeight, source.getConfig());
+        Bitmap.Config config = source.getConfig() == null ? Bitmap.Config.ARGB_8888
+                : source.getConfig();
+        Bitmap destination = Bitmap.createBitmap(newWidth, newHeight, config);
         Canvas canvas = new Canvas(destination);
         canvas.drawBitmap(source, null, targetRect, null);
 

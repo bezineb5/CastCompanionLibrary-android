@@ -93,10 +93,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -147,8 +148,6 @@ public class VideoCastManager extends BaseCastManager
     private TracksPreferenceManager mTrackManager;
     private MediaQueue mMediaQueue;
     private MediaStatus mMediaStatus;
-    private Timer mProgressTimer;
-    private UpdateProgressTask mProgressTask;
     private FetchBitmapTask mLockScreenFetchTask;
     private FetchBitmapTask mMediaSessionIconFetchTask;
 
@@ -182,6 +181,8 @@ public class VideoCastManager extends BaseCastManager
     private MediaAuthService mAuthService;
     private long mLiveStreamDuration = DEFAULT_LIVE_STREAM_DURATION_MS;
     private MediaQueueItem mPreLoadingItem;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> mProgressHandler;
 
     public static final int QUEUE_OPERATION_LOAD = 1;
     public static final int QUEUE_OPERATION_INSERT_ITEMS = 2;
@@ -240,7 +241,6 @@ public class VideoCastManager extends BaseCastManager
                 LOGE(TAG, msg);
             }
             sInstance = new VideoCastManager(context, castConfiguration);
-            sInstance.restartProgressTimer();
         }
         sInstance.setupTrackManager();
         return sInstance;
@@ -2555,6 +2555,9 @@ public class VideoCastManager extends BaseCastManager
                 LOGD(TAG, "Attempting to adding " + miniController + " but it was already "
                         + "registered, skipping this step");
             }
+            if (mProgressHandler == null || mProgressHandler.isCancelled()) {
+                restartProgressTimer();
+            }
         }
     }
 
@@ -2574,6 +2577,9 @@ public class VideoCastManager extends BaseCastManager
             listener.setOnMiniControllerChangedListener(null);
             synchronized (mMiniControllers) {
                 mMiniControllers.remove(listener);
+                if (mMiniControllers.isEmpty()) {
+                    stopProgressTimer();
+                }
             }
         }
     }
@@ -2971,28 +2977,7 @@ public class VideoCastManager extends BaseCastManager
         return mMediaQueue;
     }
 
-    private void stopProgressTimer() {
-        LOGD(TAG, "Stopped TrickPlay Timer");
-        if (mProgressTask != null) {
-            mProgressTask.cancel();
-            mProgressTask = null;
-        }
-        if (mProgressTimer != null) {
-            mProgressTimer.cancel();
-            mProgressTimer = null;
-        }
-    }
-
-    private void restartProgressTimer() {
-        stopProgressTimer();
-        mProgressTimer = new Timer();
-        mProgressTask = new UpdateProgressTask();
-        mProgressTimer.scheduleAtFixedRate(mProgressTask, 100, PROGRESS_UPDATE_INTERVAL_MS);
-        LOGD(TAG, "Restarted Progress Timer");
-    }
-
-    private class UpdateProgressTask extends TimerTask {
-
+    final private Runnable mProgressRunnable = new Runnable() {
         @Override
         public void run() {
             int currentPos;
@@ -3009,6 +2994,21 @@ public class VideoCastManager extends BaseCastManager
             } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
                 LOGE(TAG, "Failed to update the progress tracker due to network issues", e);
             }
+        }
+    };
+
+    private void restartProgressTimer() {
+        stopProgressTimer();
+        mProgressHandler = scheduler
+                .scheduleAtFixedRate(mProgressRunnable, 100, PROGRESS_UPDATE_INTERVAL_MS,
+                        TimeUnit.MILLISECONDS);
+        LOGD(TAG, "Restarted Progress Timer");
+    }
+
+    private void stopProgressTimer() {
+        LOGD(TAG, "Stopped TrickPlay Timer");
+        if (mProgressHandler != null && !mProgressHandler.isCancelled()) {
+            mProgressHandler.cancel(true);
         }
     }
 

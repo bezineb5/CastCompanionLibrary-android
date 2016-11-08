@@ -550,6 +550,9 @@ public class VideoCastControllerFragment extends Fragment implements
             }
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             LOGE(TAG, "Failed to get media information or status of media playback", e);
+            if (e instanceof  NoConnectionException) {
+                mCastController.closeActivity();
+            }
         } finally {
             mCastManager.incrementUiCounter();
         }
