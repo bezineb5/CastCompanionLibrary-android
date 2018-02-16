@@ -139,6 +139,11 @@ public class RemoteDisplayCastManager extends BaseCastManager {
                         String msg = "onRemoteDisplaySessionError: " + errorReason.toString();
                         Log.e(TAG, msg);
                     }
+
+                    @Override
+                    public void onRemoteDisplaySessionEnded(CastRemoteDisplayLocalService castRemoteDisplayLocalService) {
+                        Log.w(TAG, "onRemoteDisplaySessionEnded");
+                    }
                 });
     }
 
