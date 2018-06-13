@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.MediaRouteDialogFactory;
 import android.util.Log;
 
 import com.google.android.gms.cast.ApplicationMetadata;
@@ -13,7 +12,7 @@ import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastRemoteDisplayLocalService;
 import com.google.android.gms.cast.LaunchOptions;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
@@ -50,8 +49,7 @@ public class RemoteDisplayCastManager extends BaseCastManager {
                                                           CastConfiguration castConfiguration) {
         if (sInstance == null) {
             LOGD(TAG, "New instance of DataCastManager is created");
-            if (ConnectionResult.SUCCESS != GooglePlayServicesUtil
-                    .isGooglePlayServicesAvailable(context)) {
+            if (ConnectionResult.SUCCESS != GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)) {
                 String msg = "Couldn't find the appropriate version of Google Play Services";
                 LOGE(TAG, msg);
                 throw new RuntimeException(msg);

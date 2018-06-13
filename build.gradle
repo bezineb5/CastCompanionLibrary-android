@@ -17,9 +17,14 @@
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.2'
     }
 }
 
@@ -33,17 +38,17 @@ repositories {
 apply plugin: 'com.android.library'
 
 ext {
-    supportLibVersion = '26.1.0'
+    supportLibVersion = '27.0.1'
     versionName = '2.9.1'
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
     }
 
     sourceSets {
@@ -72,7 +77,7 @@ android {
 
 
 dependencies {
-    compile "com.android.support:appcompat-v7:${supportLibVersion}"
-    compile "com.android.support:mediarouter-v7:${supportLibVersion}"
-    compile 'com.google.android.gms:play-services-cast:11.8.0'
+    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+    implementation "com.android.support:mediarouter-v7:${supportLibVersion}"
+    implementation 'com.google.android.gms:play-services-cast:15.0.1'
 }
