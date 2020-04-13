@@ -1,6 +1,6 @@
 package com.google.android.libraries.cast.companionlibrary.cast.callbacks;
 
-import android.support.v7.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouter;
 
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.common.ConnectionResult;
